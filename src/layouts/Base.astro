@@ -1,10 +1,10 @@
 ---
 import '../styles/global.css';
-interface Props { title: string; description?: string; }
-const { title, description = 'Công cụ, dự án và blog của một lập trình viên.' } = Astro.props;
+interface Props { title: string; description?: string; wide?: boolean; }
+const { title, description = 'Dự án, blog và công cụ của một lập trình viên.', wide = false } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const path = Astro.url.pathname;
-const nav = [['/', 'Trang chủ'], ['/projects/', 'Dự án'], ['/blog/', 'Blog'], ['/contact/', 'Liên hệ']];
+const links = [['/projects/', 'Dự án'], ['/blog/', 'Blog'], ['/contact/', 'Liên hệ']];
 ---
 <!doctype html>
 <html lang="vi">
@@ -23,19 +23,53 @@ const nav = [['/', 'Trang chủ'], ['/projects/', 'Dự án'], ['/blog/', 'Blog'
   </script>
 </head>
 <body>
-  <a class="hp" href="#main">Bỏ qua điều hướng</a>
+  <a class="skip" href="#main">Bỏ qua điều hướng</a>
   <header class="site">
-    <div class="wrap">
-      <a class="logo" href="/">devhub</a>
-      <nav aria-label="Chính">
-        {nav.map(([href, label]) => (
+    <div class="container bar">
+      <a class="logo" href="/"><span class="mark" aria-hidden="true"></span>devhub</a>
+      <nav class="desk" aria-label="Chính">
+        {links.slice(0, 2).map(([href, label]) => (
           <a href={href} aria-current={path === href ? 'page' : undefined}>{label}</a>
         ))}
-        <button class="theme" id="theme" aria-label="Đổi giao diện sáng/tối">◐</button>
       </nav>
+      <div class="actions">
+        <button class="theme" id="theme" aria-label="Đổi giao diện sáng/tối">◐</button>
+        <a class="btn primary sm" href="/contact/">Liên hệ</a>
+        <details class="mob">
+          <summary aria-label="Mở menu">☰</summary>
+          <div class="panel">
+            {[['/', 'Trang chủ'], ...links].map(([href, label]) => (
+              <a href={href}>{label}</a>
+            ))}
+          </div>
+        </details>
+      </div>
     </div>
   </header>
-  <main id="main" class="wrap"><slot /></main>
+
+  <main id="main" class={wide ? 'wide' : 'wrap'}><slot /></main>
+
+  <footer class="site-foot">
+    <div class="container foot">
+      <div>
+        <a class="logo" href="/"><span class="mark" aria-hidden="true"></span>devhub</a>
+        <p class="meta">Dự án, blog và công cụ của một lập trình viên.</p>
+      </div>
+      <div>
+        <h3>Trang</h3>
+        <ul>{[['/', 'Trang chủ'], ...links].map(([href, label]) => <li><a href={href}>{label}</a></li>)}</ul>
+      </div>
+      <div>
+        <h3>Liên kết</h3>
+        <ul>
+          <li><a href="https://github.com/ncd405" rel="noopener">GitHub</a></li>
+          <li><a href="/sitemap.xml">Sitemap</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="container copy meta">© {new Date().getFullYear()} devhub</div>
+  </footer>
+
   <div id="toast" role="status" aria-live="polite"></div>
   <script>
     document.getElementById('theme')?.addEventListener('click', () => {
