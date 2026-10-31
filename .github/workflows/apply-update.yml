@@ -1,0 +1,58 @@
+name: Apply update zip
+
+# Tải devhub.zip vào thư mục updates/ là web tự cập nhật, không cần Colab.
+on:
+  push:
+    branches: [main]
+    paths: ["updates/*.zip"]
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Giải nén và áp dụng bản cập nhật
+        run: |
+          set -e
+          shopt -s nullglob
+          for z in updates/*.zip; do
+            rm -rf /tmp/upd && mkdir -p /tmp/upd
+            unzip -q "$z" -d /tmp/upd
+            src=/tmp/upd
+            [ -d /tmp/upd/devhub ] && src=/tmp/upd/devhub
+            # Chỉ ghi đè/thêm file, không xóa bài blog hay notebook đang có.
+            # Bỏ qua .github vì GITHUB_TOKEN không được sửa workflow.
+            rsync -a --exclude='.git' --exclude='.github' --exclude='node_modules' "$src"/ ./
+            rm -f "$z"
+          done
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Cài thư viện (cập nhật package-lock) và build thử
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+
+      - name: Commit và push
+        env:
+          UPLOAD_MSG: ${{ github.event.head_commit.message }}
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Không có thay đổi."
+            exit 0
+          fi
+          msg="$UPLOAD_MSG"
+          case "$msg" in
+            ""|"Add files via upload"*) msg="Cập nhật từ zip $(TZ=Asia/Ho_Chi_Minh date '+%d/%m/%Y %H:%M')" ;;
+          esac
+          git commit -m "$msg" -m "$(git diff --cached --name-status | head -n 30)"
+          git push

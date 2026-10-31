@@ -4,7 +4,7 @@ interface Props { title: string; description?: string; wide?: boolean; }
 const { title, description = 'Dự án, blog và công cụ của một lập trình viên.', wide = false } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const path = Astro.url.pathname;
-const links = [['/projects/', 'Dự án'], ['/blog/', 'Blog'], ['/contact/', 'Liên hệ']];
+const links = [['/projects/', 'Dự án'], ['/blog/', 'Blog'], ['/tools/', 'Công cụ'], ['/contact/', 'Liên hệ']];
 ---
 <!doctype html>
 <html lang="vi">
@@ -28,7 +28,7 @@ const links = [['/projects/', 'Dự án'], ['/blog/', 'Blog'], ['/contact/', 'Li
     <div class="container bar">
       <a class="logo" href="/"><span class="mark" aria-hidden="true"></span>devhub</a>
       <nav class="desk" aria-label="Chính">
-        {links.slice(0, 2).map(([href, label]) => (
+        {links.slice(0, 3).map(([href, label]) => (
           <a href={href} aria-current={path === href ? 'page' : undefined}>{label}</a>
         ))}
       </nav>

@@ -1,0 +1,112 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base title="Tạo mã QR — devhub" description="Tạo mã QR miễn phí ngay trên trình duyệt, tải về PNG hoặc SVG.">
+  <h1>Tạo mã QR</h1>
+  <p class="lead">Nhập đường link hoặc văn bản, mã QR hiện ngay. Mọi thứ xử lý trên máy bạn, nội dung không gửi đi đâu.</p>
+
+  <div class="tool">
+    <label>Nội dung hoặc đường link
+      <textarea id="qr-text" rows="3" maxlength="1000" placeholder="https://example.com"></textarea>
+    </label>
+    <div class="row2">
+      <label>Kích thước
+        <select id="qr-size">
+          <option value="256">256 px</option>
+          <option value="384" selected>384 px</option>
+          <option value="512">512 px</option>
+          <option value="1024">1024 px (in ấn)</option>
+        </select>
+      </label>
+      <label>Mức sửa lỗi
+        <select id="qr-level">
+          <option value="L">Thấp (L)</option>
+          <option value="M" selected>Vừa (M)</option>
+          <option value="Q">Cao (Q)</option>
+          <option value="H">Rất cao (H)</option>
+        </select>
+      </label>
+    </div>
+    <div class="row2">
+      <label>Màu mã <input id="qr-fg" type="color" value="#000000" /></label>
+      <label>Màu nền <input id="qr-bg" type="color" value="#ffffff" /></label>
+    </div>
+
+    <p id="qr-msg" class="meta" role="status" aria-live="polite">Nhập nội dung để tạo mã QR.</p>
+    <div class="qr-box"><canvas id="qr-canvas" role="img" aria-label="Mã QR đã tạo" hidden></canvas></div>
+    <div class="cta-row">
+      <button class="btn primary" id="dl-png" type="button" disabled>Tải PNG</button>
+      <button class="btn ghost" id="dl-svg" type="button" disabled>Tải SVG</button>
+    </div>
+  </div>
+
+  <script>
+    import QRCode from 'qrcode';
+
+    const el = (id: string) => document.getElementById(id) as any;
+    const text = el('qr-text'), size = el('qr-size'), level = el('qr-level');
+    const fg = el('qr-fg'), bg = el('qr-bg'), canvas = el('qr-canvas');
+    const msg = el('qr-msg'), dlPng = el('dl-png'), dlSvg = el('dl-svg');
+
+    const opts = () => ({
+      width: Number(size.value),
+      margin: 2,
+      errorCorrectionLevel: level.value,
+      color: { dark: fg.value, light: bg.value },
+    });
+
+    // Độ tương phản giữa màu mã và màu nền (máy quét cần mã tối hơn nền)
+    const lum = (hex: string) => {
+      const [r, g, b] = [1, 3, 5].map((i) => {
+        const v = parseInt(hex.slice(i, i + 2), 16) / 255;
+        return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+      });
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    const contrast = () => {
+      const [a, b] = [lum(fg.value), lum(bg.value)].sort((x, y) => y - x);
+      return (a + 0.05) / (b + 0.05);
+    };
+
+    const setReady = (ok: boolean) => {
+      canvas.hidden = !ok;
+      dlPng.disabled = !ok;
+      dlSvg.disabled = !ok;
+    };
+
+    async function render() {
+      const value = text.value.trim();
+      if (!value) { setReady(false); msg.textContent = 'Nhập nội dung để tạo mã QR.'; return; }
+      try {
+        await QRCode.toCanvas(canvas, value, opts());
+        setReady(true);
+        msg.textContent = contrast() < 3
+          ? 'Màu mã và màu nền quá gần nhau, máy quét có thể không đọc được.'
+          : '';
+      } catch {
+        setReady(false);
+        msg.textContent = 'Nội dung quá dài để tạo mã QR. Hãy rút gọn hoặc giảm mức sửa lỗi.';
+      }
+    }
+
+    let timer: number | undefined;
+    const schedule = () => { clearTimeout(timer); timer = window.setTimeout(render, 150); };
+    [text, size, level, fg, bg].forEach((n) => { n.addEventListener('input', schedule); n.addEventListener('change', schedule); });
+
+    const save = (href: string, name: string) => {
+      const a = document.createElement('a');
+      a.href = href; a.download = name; a.click();
+    };
+    dlPng.addEventListener('click', () => save(canvas.toDataURL('image/png'), 'qr.png'));
+    dlSvg.addEventListener('click', async () => {
+      try {
+        const svg = await QRCode.toString(text.value.trim(), { ...opts(), type: 'svg' });
+        const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
+        save(url, 'qr.svg');
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      } catch {
+        msg.textContent = 'Không tạo được file SVG. Thử tải PNG.';
+      }
+    });
+  </script>
+</Base>

@@ -21,3 +21,8 @@ Mỗi lần `git push` lên `main`, web tự build và deploy.
 ## Cloudflare (giao diện Workers Builds)
 Build command: `npm run build` | Deploy command: `npx wrangler deploy` (đã có `wrangler.jsonc` trỏ tới `dist`)
 Biến build: `PUBLIC_FORM_ENDPOINT`
+
+## Cập nhật không cần Colab
+Tải `devhub.zip` mới vào thư mục `updates/` trên github.com (Add file > Upload files),
+gõ nội dung commit rồi Commit. Action `apply-update.yml` tự giải nén, build thử, commit và deploy.
+Lưu ý: Action không sửa được `.github/workflows/`; file workflow đổi thì phải cập nhật bằng Colab.

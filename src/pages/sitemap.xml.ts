@@ -5,7 +5,7 @@ import { getCollection } from 'astro:content';
 export const GET: APIRoute = async ({ site }) => {
   const base = (site?.toString() ?? '').replace(/\/$/, '');
   const posts = await getCollection('blog', (p) => !p.data.draft);
-  const paths = ['/', '/projects/', '/blog/', '/contact/', ...posts.map((p) => `/blog/${p.slug}/`)];
+  const paths = ['/', '/projects/', '/blog/', '/tools/', '/tools/qr/', '/contact/', ...posts.map((p) => `/blog/${p.slug}/`)];
   const body = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${paths.map((u) => `  <url><loc>${base}${u}</loc></url>`).join('\n')}
