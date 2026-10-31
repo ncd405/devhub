@@ -1,0 +1,22 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+---
+<Base title="Dự án — devhub" description="Các dự án mình đã làm.">
+  <h1>Dự án</h1>
+  {projects.length === 0 && <p class="lead">Chưa có dự án. Thêm file <code>.md</code> vào <code>src/content/projects/</code>.</p>}
+  <ul class="list">
+    {projects.map(p => (
+      <li>
+        <strong>{p.data.title}</strong>
+        <div>{p.data.description}</div>
+        <div class="tags">{p.data.stack.map(s => <span>{s}</span>)}</div>
+        <div class="meta">
+          {p.data.repo && <a href={p.data.repo} rel="noopener">Mã nguồn</a>}
+          {p.data.demo && <> · <a href={p.data.demo} rel="noopener">Xem thử</a></>}
+        </div>
+      </li>
+    ))}
+  </ul>
+</Base>

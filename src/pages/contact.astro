@@ -1,0 +1,77 @@
+---
+import Base from '../layouts/Base.astro';
+const endpoint = import.meta.env.PUBLIC_FORM_ENDPOINT ?? '';
+---
+<Base title="Liên hệ — devhub" description="Gửi tin nhắn cho mình.">
+  <h1>Liên hệ</h1>
+  <form id="contact" novalidate data-endpoint={endpoint}>
+    <label>Tên
+      <input name="name" autocomplete="name" required maxlength="80" />
+      <span class="err" data-for="name"></span>
+    </label>
+    <label>Email
+      <input name="email" type="email" autocomplete="email" required maxlength="120" />
+      <span class="err" data-for="email"></span>
+    </label>
+    <label>Nội dung
+      <textarea name="message" rows="5" required minlength="10" maxlength="2000"></textarea>
+      <span class="err" data-for="message"></span>
+    </label>
+    <!-- Honeypot: người thật không thấy ô này, bot thì điền -->
+    <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
+    <button class="primary" type="submit">Gửi tin nhắn</button>
+  </form>
+
+  <script>
+    const form = document.getElementById('contact') as HTMLFormElement;
+    const toast = document.getElementById('toast')!;
+    const show = (msg: string) => {
+      toast.textContent = msg; toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3500);
+    };
+    const setErr = (name: string, msg: string) => {
+      const el = form.elements.namedItem(name) as HTMLInputElement;
+      form.querySelector(`[data-for="${name}"]`)!.textContent = msg;
+      el.setAttribute('aria-invalid', msg ? 'true' : 'false');
+    };
+    // Chống spam click: nhớ lần gửi gần nhất
+    let lastSent = 0;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const d = Object.fromEntries(new FormData(form)) as Record<string, string>;
+      if (d.website) return; // bot
+
+      let ok = true;
+      const name = d.name.trim(), email = d.email.trim(), message = d.message.trim();
+      setErr('name', name ? '' : 'Hãy nhập tên.'); if (!name) ok = false;
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      setErr('email', emailOk ? '' : 'Email chưa đúng định dạng.'); if (!emailOk) ok = false;
+      setErr('message', message.length >= 10 ? '' : 'Nội dung cần ít nhất 10 ký tự.'); if (message.length < 10) ok = false;
+      if (!ok) return;
+
+      if (Date.now() - lastSent < 15000) return show('Bạn vừa gửi xong, vui lòng đợi vài giây.');
+      if (!navigator.onLine) return show('Mất kết nối mạng. Kiểm tra lại rồi gửi lần nữa.');
+      const endpoint = form.dataset.endpoint;
+      if (!endpoint) return show('Chưa cấu hình PUBLIC_FORM_ENDPOINT.');
+
+      const btn = form.querySelector('button')!;
+      btn.disabled = true; btn.textContent = 'Đang gửi…';
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ name, email, message }),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        lastSent = Date.now();
+        form.reset();
+        show('Đã gửi. Mình sẽ phản hồi sớm.');
+      } catch (err) {
+        show('Gửi chưa được. Thử lại sau hoặc email trực tiếp.');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Gửi tin nhắn';
+      }
+    });
+  </script>
+</Base>

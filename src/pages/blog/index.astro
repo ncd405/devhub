@@ -1,0 +1,19 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+const posts = (await getCollection('blog', p => !p.data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+<Base title="Blog — devhub" description="Ghi chú kỹ thuật và bài viết.">
+  <h1>Blog</h1>
+  {posts.length === 0 && <p class="lead">Chưa có bài viết nào.</p>}
+  <ul class="list">
+    {posts.map(p => (
+      <li>
+        <a class="title" href={`/blog/${p.slug}/`}>{p.data.title}</a>
+        <div class="meta">{p.data.date.toLocaleDateString('vi-VN')}</div>
+        <div>{p.data.description}</div>
+      </li>
+    ))}
+  </ul>
+</Base>

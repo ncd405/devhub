@@ -1,0 +1,26 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+const posts = (await getCollection('blog', p => !p.data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()).slice(0, 3);
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order).slice(0, 3);
+---
+<Base title="devhub — dự án, blog và công cụ của một dev">
+  <h1>Mình viết code, ghi lại những gì học được.</h1>
+  <p class="lead">Nơi tập hợp dự án, bài viết và công cụ cá nhân. Chỉnh nội dung này trong <code>src/pages/index.astro</code>.</p>
+
+  <h2>Dự án</h2>
+  <ul class="list">
+    {projects.map(p => (
+      <li><a class="title" href="/projects/">{p.data.title}</a><div class="meta">{p.data.description}</div></li>
+    ))}
+  </ul>
+
+  <h2>Bài viết mới</h2>
+  <ul class="list">
+    {posts.map(p => (
+      <li><a class="title" href={`/blog/${p.slug}/`}>{p.data.title}</a>
+        <div class="meta">{p.data.date.toLocaleDateString('vi-VN')}</div></li>
+    ))}
+  </ul>
+</Base>
