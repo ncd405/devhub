@@ -7,7 +7,7 @@ const path = Astro.url.pathname;
 const links = [['/projects/', 'Dự án'], ['/blog/', 'Blog'], ['/tools/', 'Công cụ'], ['/contact/', 'Liên hệ']];
 ---
 <!doctype html>
-<html lang="vi">
+<html lang="vi" data-theme="dark">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -19,7 +19,7 @@ const links = [['/projects/', 'Dự án'], ['/blog/', 'Blog'], ['/tools/', 'Côn
   <meta property="og:type" content="website" />
   <!-- Áp dụng theme trước khi vẽ trang để không bị nháy -->
   <script is:inline>
-    try { const t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+    try { document.documentElement.dataset.theme = localStorage.getItem('theme') || 'dark'; } catch (e) {}
   </script>
 </head>
 <body>
@@ -28,13 +28,12 @@ const links = [['/projects/', 'Dự án'], ['/blog/', 'Blog'], ['/tools/', 'Côn
     <div class="container bar">
       <a class="logo" href="/"><span class="mark" aria-hidden="true"></span>devhub</a>
       <nav class="desk" aria-label="Chính">
-        {links.slice(0, 3).map(([href, label]) => (
+        {links.map(([href, label]) => (
           <a href={href} aria-current={path === href ? 'page' : undefined}>{label}</a>
         ))}
       </nav>
       <div class="actions">
         <button class="theme" id="theme" aria-label="Đổi giao diện sáng/tối">◐</button>
-        <a class="btn primary sm" href="/contact/">Liên hệ</a>
         <details class="mob">
           <summary aria-label="Mở menu">☰</summary>
           <div class="panel">
@@ -74,9 +73,7 @@ const links = [['/projects/', 'Dự án'], ['/blog/', 'Blog'], ['/tools/', 'Côn
   <script>
     document.getElementById('theme')?.addEventListener('click', () => {
       const root = document.documentElement;
-      const dark = root.dataset.theme === 'dark' ||
-        (!root.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
-      const next = dark ? 'light' : 'dark';
+      const next = root.dataset.theme === 'light' ? 'dark' : 'light';
       root.dataset.theme = next;
       try { localStorage.setItem('theme', next); } catch (e) {}
     });

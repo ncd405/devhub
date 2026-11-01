@@ -4,38 +4,44 @@ import { getCollection } from 'astro:content';
 const posts = (await getCollection('blog', p => !p.data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
-const latestPost = posts[0];
-const latestProject = projects[0];
 ---
 <Base title="devhub — dự án, blog và công cụ của một dev" wide>
   <div class="container">
     <!-- Hero -->
     <section class="hero">
-      <div>
-        <h1>Dự án, bài viết và công cụ của một lập trình viên.</h1>
-        <p class="lead">Mọi thứ mình làm và học được, gom về một nơi. Web tự cập nhật mỗi khi mình đẩy code lên GitHub.</p>
-        <div class="cta-row">
-          <a class="btn primary" href="/projects/">Xem dự án</a>
-          <a class="btn ghost" href="/blog/">Đọc blog</a>
-        </div>
+      <h1>Dự án, blog và công cụ cho dev.</h1>
+      <p class="lead">Gom mọi thứ mình làm vào một nơi. Mỗi lần đẩy code lên GitHub, web tự cập nhật.</p>
+      <p class="cmd" aria-label="Lệnh minh họa: git push"><span class="prompt">&gt;</span>git push</p>
+      <a class="pill" href="/tools/qr/"><span class="tag">MỚI</span> Công cụ tạo mã QR <span aria-hidden="true">›</span></a>
+      <div class="hero-links">
+        <a href="/projects/">Xem dự án</a>
+        <a href="/blog/">Đọc blog</a>
       </div>
-      <aside class="card hero-card" aria-label="Mới cập nhật">
-        <div class="head">Mới cập nhật</div>
-        {latestProject && (
-          <a class="row" href="/projects/">
-            <span class="kind">Dự án</span>
-            <strong>{latestProject.data.title}</strong>
-            <span class="meta">{latestProject.data.description}</span>
-          </a>
-        )}
-        {latestPost && (
-          <a class="row" href={`/blog/${latestPost.slug}/`}>
-            <span class="kind">Bài viết</span>
-            <strong>{latestPost.data.title}</strong>
-            <span class="meta">{latestPost.data.date.toLocaleDateString('vi-VN')}</span>
-          </a>
-        )}
-      </aside>
+    </section>
+
+    <!-- Công nghệ -->
+    <section class="tech" aria-label="Công nghệ sử dụng">
+      <p class="micro">Xây dựng bằng</p>
+      <ul class="wordmarks">
+        <li>Astro</li><li>Cloudflare</li><li>GitHub</li><li>Colab</li><li>Formspree</li>
+      </ul>
+    </section>
+
+    <!-- Cửa sổ code minh họa -->
+    <section class="block">
+      <h2>Viết bài chỉ là một file Markdown</h2>
+      <p class="sub">Lưu file, đẩy lên GitHub, vài phút sau bài lên mạng.</p>
+      <figure class="codewin">
+        <figcaption><span class="dots3" aria-hidden="true"><i></i><i></i><i></i></span><span>src/content/blog/bai-moi.md</span></figcaption>
+        <pre><code><span class="c">&#45;&#45;&#45;</span>
+<span class="k">title</span>: <span class="s">"Bài viết mới"</span>
+<span class="k">description</span>: <span class="s">"Một dòng mô tả ngắn."</span>
+<span class="k">date</span>: <span class="n">2026-11-01</span>
+<span class="k">tags</span>: [<span class="s">"colab"</span>]
+<span class="c">&#45;&#45;&#45;</span>
+
+Viết nội dung bằng Markdown.</code></pre>
+      </figure>
     </section>
 
     <!-- Nội dung chính -->
@@ -54,7 +60,7 @@ const latestProject = projects[0];
           <p>Ghi chú kỹ thuật, kể cả bài được chuyển thẳng từ notebook Colab.</p>
         </a>
         <a class="card feature" href="/tools/">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h3v3h-3zM19 19h1M14 20h1M20 14h0"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h3v3h-3zM19 19h1M14 20h1"/></svg>
           <h3>Công cụ</h3>
           <p>Tiện ích chạy ngay trên trình duyệt, như tạo mã QR.</p>
         </a>
@@ -66,7 +72,7 @@ const latestProject = projects[0];
       </div>
     </section>
 
-    <!-- Quy trình (đây là một chuỗi bước nên đánh số) -->
+    <!-- Quy trình (chuỗi bước nên đánh số) -->
     <section class="block">
       <h2>Web này vận hành thế nào</h2>
       <p class="sub">Từ lúc viết đến lúc xuất hiện trên mạng chỉ mất vài phút.</p>
