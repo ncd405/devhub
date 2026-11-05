@@ -4,41 +4,113 @@ import { getCollection } from 'astro:content';
 const posts = (await getCollection('blog', p => !p.data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const latestPost = posts[0];
+const latestProject = projects[0];
+
+// Kịch bản minh họa cho hai cửa sổ terminal
+const localSteps = [
+  { kind: 'cmd', text: 'git add . && git commit -m "Thêm bài mới"' },
+  { kind: 'dim', text: '[main] Thêm bài mới' },
+  { kind: 'cmd', text: 'git push' },
+  { kind: 'ok', text: '✓ Đã đẩy lên GitHub' },
+];
+const cloudSteps = [
+  { kind: 'dim', text: 'Cloning repository...' },
+  { kind: 'dim', text: 'Installing dependencies...' },
+  { kind: 'cmd', text: 'npm run build' },
+  { kind: 'ok', text: '✓ Build thành công' },
+  { kind: 'ok', text: '✓ Đã deploy lên Cloudflare' },
+];
+const marquee = ['Astro', 'Cloudflare', 'GitHub', 'Colab', 'Formspree', 'Markdown', 'Node.js'];
 ---
 <Base title="devhub — dự án, blog và công cụ của một dev" wide>
-  <div class="container">
-    <section class="hero">
-      <h1>Cho mọi thứ mình xây.</h1>
-      <p class="lead">Dự án, blog và công cụ gom về một nơi, tự cập nhật mỗi khi mình đẩy code.</p>
-      <p class="cmd" aria-label="Lệnh minh họa: git push"><span class="prompt">&gt;</span>git push</p>
-      <a class="pill" href="/tools/qr/"><span class="tag">MỚI</span> Công cụ tạo mã QR <span class="chev" aria-hidden="true">›</span></a>
-      <div class="hero-links">
-        <a href="/projects/">Xem dự án</a>
-        <a href="/blog/">Đọc blog</a>
-        <a href="/contact/">Liên hệ</a>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="blobs" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="container">
+      <div class="hero-in">
+        <a class="chip rise" style="--d:0" href="/tools/qr/"><b>Mới</b> Công cụ tạo mã QR →</a>
+        <h1 class="rise" style="--d:1">Code xong là <span class="grad">lên web.</span></h1>
+        <p class="lead rise" style="--d:2">Dự án, blog và công cụ của một lập trình viên, tự động deploy mỗi khi đẩy code lên GitHub.</p>
+        <div class="cta-row rise" style="--d:3">
+          <a class="btn primary lg" href="/projects/">Xem dự án <span class="arr">→</span></a>
+          <a class="btn ghost lg" href="/blog/">Đọc blog</a>
+        </div>
       </div>
-    </section>
 
-    <section class="tech" aria-label="Công nghệ sử dụng">
-      <p class="micro">Xây dựng bằng</p>
-      <ul class="wordmarks">
-        <li>Astro</li><li>Cloudflare</li><li>GitHub</li><li>Colab</li><li>Formspree</li>
-      </ul>
-    </section>
+      <div class="cards3">
+        <a class="pcard" href="/projects/" data-reveal style="--d:0">
+          <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg></span>
+          <h3>Dự án</h3>
+          <p>{latestProject ? `${latestProject.data.title}: ${latestProject.data.description}` : 'Các sản phẩm và thử nghiệm của mình.'}</p>
+          <span class="more">Xem dự án</span>
+        </a>
+        <a class="pcard" href="/blog/" data-reveal style="--d:1">
+          <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11l3 3v13H5zM9 11h6M9 15h6"/></svg></span>
+          <h3>Blog</h3>
+          <p>{latestPost ? `Mới nhất: ${latestPost.data.title}` : 'Ghi chú kỹ thuật và bài viết.'}</p>
+          <span class="more">Đọc blog</span>
+        </a>
+        <a class="pcard" href="/tools/" data-reveal style="--d:2">
+          <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h3v3h-3zM19 19h1M14 20h1"/></svg></span>
+          <h3>Công cụ</h3>
+          <p>Tiện ích chạy ngay trên trình duyệt, như tạo mã QR, không cần đăng nhập.</p>
+          <span class="more">Mở công cụ</span>
+        </a>
+      </div>
+    </div>
+  </section>
 
-    <figure class="codewin">
-      <figcaption><span class="dots3" aria-hidden="true"><i></i><i></i><i></i></span><span class="fname">bai-moi.md</span><span></span></figcaption>
-      <pre><code><span class="c">&#45;&#45;&#45;</span>
-<span class="k">title</span>: <span class="s">"Bài viết mới"</span>
-<span class="k">description</span>: <span class="s">"Một dòng mô tả ngắn"</span>
-<span class="k">date</span>: <span class="n">2026-11-01</span>
-<span class="k">tags</span>: [<span class="s">"colab"</span>]
-<span class="c">&#45;&#45;&#45;</span></code></pre>
-    </figure>
+  <!-- MARQUEE -->
+  <div class="marquee" aria-label="Công nghệ sử dụng">
+    <div class="track">
+      {marquee.map(m => <span>{m}</span>)}
+      {marquee.map(m => <span aria-hidden="true">{m}</span>)}
+    </div>
+  </div>
 
-    <section class="block">
+  <!-- TERMINAL -->
+  <section class="dark">
+    <div class="container">
+      <h2 data-reveal>Từ máy bạn đến mạng, không đụng tới server.</h2>
+      <p class="sub" data-reveal style="--d:1">Bạn chỉ viết và đẩy code. Phần build và đưa lên mạng do GitHub và Cloudflare lo.</p>
+      <div class="demo2">
+        <div class="term" data-demo data-steps={JSON.stringify(localSteps)} data-reveal style="--d:1" role="img" aria-label="Minh họa: gõ git push để đẩy code lên GitHub">
+          <div class="term-h"><i></i><i></i><i></i><span>Trên máy của mình</span></div>
+          <div class="term-b">
+            {localSteps.map(s => <span class={`ln t-${s.kind}`}>{s.kind === 'cmd' ? <><span class="t-prompt">$ </span>{s.text}</> : s.text}</span>)}
+          </div>
+        </div>
+        <div class="term" data-demo data-steps={JSON.stringify(cloudSteps)} data-reveal style="--d:2" role="img" aria-label="Minh họa: Cloudflare tự build và deploy">
+          <div class="term-h"><i></i><i></i><i></i><span>Trên Cloudflare</span></div>
+          <div class="term-b">
+            {cloudSteps.map(s => <span class={`ln t-${s.kind}`}>{s.kind === 'cmd' ? <><span class="t-prompt">$ </span>{s.text}</> : s.text}</span>)}
+          </div>
+        </div>
+      </div>
+      <p class="note">Minh họa quy trình, không phải log thật.</p>
+    </div>
+  </section>
+
+  <!-- SỐ LIỆU -->
+  <section class="stats-sec">
+    <div class="container">
+      <h2 data-reveal>Mọi thứ nằm gọn trong một repo.</h2>
+      <p class="sub" data-reveal style="--d:1">Nội dung là file Markdown, sửa xong đẩy lên là web tự cập nhật.</p>
+      <div class="stats">
+        <div class="stat" data-reveal style="--d:0"><b data-count={projects.length}>{projects.length}</b><span>Dự án</span></div>
+        <div class="stat" data-reveal style="--d:1"><b data-count={posts.length}>{posts.length}</b><span>Bài viết</span></div>
+        <div class="stat" data-reveal style="--d:2"><b data-count="1">1</b><span>Công cụ</span></div>
+        <div class="stat" data-reveal style="--d:3"><b data-count="1">1</b><span>Lệnh để cập nhật</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MỚI NHẤT + KÊU GỌI -->
+  <div class="container">
+    <section class="latest">
       <div class="two">
-        <div>
+        <div data-reveal>
           <h3>Dự án</h3>
           <ul class="list">
             {projects.slice(0, 3).map(p => (
@@ -46,7 +118,7 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
             ))}
           </ul>
         </div>
-        <div>
+        <div data-reveal style="--d:1">
           <h3>Bài viết mới</h3>
           <ul class="list">
             {posts.slice(0, 3).map(p => (
@@ -57,5 +129,93 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
         </div>
       </div>
     </section>
+
+    <section class="cta" data-reveal>
+      <h2>Có việc cần trao đổi?</h2>
+      <p>Gửi tin nhắn, mình sẽ phản hồi sớm.</p>
+      <a class="btn lg" href="/contact/">Liên hệ <span class="arr">→</span></a>
+    </section>
   </div>
+
+  <script>
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // 1) Cuộn tới đâu hiện dần tới đó
+    const reveal = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) { e.target.classList.add('in'); reveal.unobserve(e.target); }
+      }
+    }, { threshold: 0.15 });
+    document.querySelectorAll('[data-reveal]').forEach((el) => reveal.observe(el));
+
+    // 2) Số liệu đếm lên
+    document.querySelectorAll<HTMLElement>('[data-count]').forEach((el) => {
+      const end = Number(el.dataset.count);
+      if (reduce || !end) return;
+      el.textContent = '0';
+      const io = new IntersectionObserver(([en]) => {
+        if (!en.isIntersecting) return;
+        io.disconnect();
+        const t0 = performance.now(), dur = 1200;
+        const step = (t: number) => {
+          const p = Math.min(1, (t - t0) / dur);
+          el.textContent = String(Math.round(end * (1 - Math.pow(1 - p, 3))));
+          if (p < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      }, { threshold: 0.5 });
+      io.observe(el);
+    });
+
+    // 3) Terminal tự gõ, lặp lại khi còn trong màn hình
+    type Step = { kind: 'cmd' | 'dim' | 'ok'; text: string };
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+    async function play(body: HTMLElement, steps: Step[], token: { stop: boolean }) {
+      body.textContent = '';
+      body.classList.add('live');
+      for (const s of steps) {
+        if (token.stop) return;
+        const line = document.createElement('span');
+        line.className = `ln t-${s.kind}`;
+        body.appendChild(line);
+        if (s.kind === 'cmd') {
+          const p = document.createElement('span');
+          p.className = 't-prompt'; p.textContent = '$ ';
+          const txt = document.createElement('span');
+          line.append(p, txt);
+          for (const ch of s.text) {
+            if (token.stop) return;
+            txt.textContent += ch;
+            await sleep(30);
+          }
+          await sleep(350);
+        } else {
+          line.textContent = s.text;
+          await sleep(600);
+        }
+      }
+    }
+
+    if (!reduce) {
+      document.querySelectorAll<HTMLElement>('[data-demo]').forEach((term) => {
+        const body = term.querySelector('.term-b') as HTMLElement;
+        let steps: Step[] = [];
+        try { steps = JSON.parse(term.dataset.steps || '[]'); } catch { return; }
+        const run = async (token: { stop: boolean }) => {
+          while (!token.stop) {
+            await play(body, steps, token);
+            if (token.stop) break;
+            body.classList.remove('live');
+            await sleep(3500);
+          }
+        };
+        let token = { stop: true };
+        new IntersectionObserver(([en]) => {
+          token.stop = true;
+          if (en.isIntersecting) { token = { stop: false }; run(token); }
+        }, { threshold: 0.35 }).observe(term);
+      });
+    }
+  </script>
 </Base>
