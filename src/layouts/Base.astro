@@ -4,7 +4,7 @@ interface Props { title: string; description?: string; wide?: boolean; }
 const { title, description = 'Dự án, blog và công cụ của một lập trình viên.', wide = false } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const path = Astro.url.pathname;
-const links = [['/projects/', 'Dự án'], ['/blog/', 'Blog'], ['/tools/', 'Công cụ'], ['/contact/', 'Liên hệ']];
+const links = [['/projects/', 'Dự án'], ['/blog/', 'Blog'], ['/tools/', 'Công cụ']];
 ---
 <!doctype html>
 <html lang="vi" data-theme="dark">
@@ -17,6 +17,10 @@ const links = [['/projects/', 'Dự án'], ['/blog/', 'Blog'], ['/tools/', 'Côn
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
   <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#1a1b30" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <!-- Áp dụng theme trước khi vẽ trang để không bị nháy -->
   <script is:inline>
     try { document.documentElement.dataset.theme = localStorage.getItem('theme') || 'dark'; } catch (e) {}
@@ -27,22 +31,11 @@ const links = [['/projects/', 'Dự án'], ['/blog/', 'Blog'], ['/tools/', 'Côn
   <header class="site">
     <div class="container bar">
       <a class="logo" href="/"><span class="mark" aria-hidden="true"></span>devhub</a>
-      <nav class="desk" aria-label="Chính">
+      <nav class="top" aria-label="Chính">
         {links.map(([href, label]) => (
           <a href={href} aria-current={path === href ? 'page' : undefined}>{label}</a>
         ))}
       </nav>
-      <div class="actions">
-        <button class="theme" id="theme" aria-label="Đổi giao diện sáng/tối">◐</button>
-        <details class="mob">
-          <summary aria-label="Mở menu">☰</summary>
-          <div class="panel">
-            {[['/', 'Trang chủ'], ...links].map(([href, label]) => (
-              <a href={href}>{label}</a>
-            ))}
-          </div>
-        </details>
-      </div>
     </div>
   </header>
 
@@ -50,23 +43,14 @@ const links = [['/projects/', 'Dự án'], ['/blog/', 'Blog'], ['/tools/', 'Côn
 
   <footer class="site-foot">
     <div class="container foot">
-      <div>
-        <a class="logo" href="/"><span class="mark" aria-hidden="true"></span>devhub</a>
-        <p class="meta">Dự án, blog và công cụ của một lập trình viên.</p>
-      </div>
-      <div>
-        <h3>Trang</h3>
-        <ul>{[['/', 'Trang chủ'], ...links].map(([href, label]) => <li><a href={href}>{label}</a></li>)}</ul>
-      </div>
-      <div>
-        <h3>Liên kết</h3>
-        <ul>
-          <li><a href="https://github.com/ncd405" rel="noopener">GitHub</a></li>
-          <li><a href="/sitemap.xml">Sitemap</a></li>
-        </ul>
-      </div>
+      <span class="meta">© {new Date().getFullYear()} devhub</span>
+      <ul>
+        <li><a href="/contact/">Liên hệ</a></li>
+        <li><a href="https://github.com/ncd405" rel="noopener">GitHub</a></li>
+        <li><a href="/sitemap.xml">Sitemap</a></li>
+        <li><button class="theme" id="theme" type="button" aria-label="Đổi giao diện sáng/tối">Sáng/Tối</button></li>
+      </ul>
     </div>
-    <div class="container copy meta">© {new Date().getFullYear()} devhub</div>
   </footer>
 
   <div id="toast" role="status" aria-live="polite"></div>

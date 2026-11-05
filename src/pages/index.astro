@@ -7,19 +7,18 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
 ---
 <Base title="devhub — dự án, blog và công cụ của một dev" wide>
   <div class="container">
-    <!-- Hero -->
     <section class="hero">
-      <h1>Dự án, blog và công cụ cho dev.</h1>
-      <p class="lead">Gom mọi thứ mình làm vào một nơi. Mỗi lần đẩy code lên GitHub, web tự cập nhật.</p>
+      <h1>Cho mọi thứ mình xây.</h1>
+      <p class="lead">Dự án, blog và công cụ gom về một nơi, tự cập nhật mỗi khi mình đẩy code.</p>
       <p class="cmd" aria-label="Lệnh minh họa: git push"><span class="prompt">&gt;</span>git push</p>
-      <a class="pill" href="/tools/qr/"><span class="tag">MỚI</span> Công cụ tạo mã QR <span aria-hidden="true">›</span></a>
+      <a class="pill" href="/tools/qr/"><span class="tag">MỚI</span> Công cụ tạo mã QR <span class="chev" aria-hidden="true">›</span></a>
       <div class="hero-links">
         <a href="/projects/">Xem dự án</a>
         <a href="/blog/">Đọc blog</a>
+        <a href="/contact/">Liên hệ</a>
       </div>
     </section>
 
-    <!-- Công nghệ -->
     <section class="tech" aria-label="Công nghệ sử dụng">
       <p class="micro">Xây dựng bằng</p>
       <ul class="wordmarks">
@@ -27,63 +26,16 @@ const projects = (await getCollection('projects')).sort((a, b) => a.data.order -
       </ul>
     </section>
 
-    <!-- Cửa sổ code minh họa -->
-    <section class="block">
-      <h2>Viết bài chỉ là một file Markdown</h2>
-      <p class="sub">Lưu file, đẩy lên GitHub, vài phút sau bài lên mạng.</p>
-      <figure class="codewin">
-        <figcaption><span class="dots3" aria-hidden="true"><i></i><i></i><i></i></span><span>src/content/blog/bai-moi.md</span></figcaption>
-        <pre><code><span class="c">&#45;&#45;&#45;</span>
+    <figure class="codewin">
+      <figcaption><span class="dots3" aria-hidden="true"><i></i><i></i><i></i></span><span class="fname">bai-moi.md</span><span></span></figcaption>
+      <pre><code><span class="c">&#45;&#45;&#45;</span>
 <span class="k">title</span>: <span class="s">"Bài viết mới"</span>
-<span class="k">description</span>: <span class="s">"Một dòng mô tả ngắn."</span>
+<span class="k">description</span>: <span class="s">"Một dòng mô tả ngắn"</span>
 <span class="k">date</span>: <span class="n">2026-11-01</span>
 <span class="k">tags</span>: [<span class="s">"colab"</span>]
-<span class="c">&#45;&#45;&#45;</span>
+<span class="c">&#45;&#45;&#45;</span></code></pre>
+    </figure>
 
-Viết nội dung bằng Markdown.</code></pre>
-      </figure>
-    </section>
-
-    <!-- Nội dung chính -->
-    <section class="block">
-      <h2>Có gì ở đây</h2>
-      <p class="sub">Bốn phần chính, nội dung nằm trong file Markdown nên sửa rất nhanh.</p>
-      <div class="grid3">
-        <a class="card feature" href="/projects/">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg>
-          <h3>Dự án</h3>
-          <p>Các sản phẩm và thử nghiệm, kèm công nghệ dùng và mã nguồn.</p>
-        </a>
-        <a class="card feature" href="/blog/">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11l3 3v13H5zM9 11h6M9 15h6"/></svg>
-          <h3>Blog</h3>
-          <p>Ghi chú kỹ thuật, kể cả bài được chuyển thẳng từ notebook Colab.</p>
-        </a>
-        <a class="card feature" href="/tools/">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h3v3h-3zM19 19h1M14 20h1"/></svg>
-          <h3>Công cụ</h3>
-          <p>Tiện ích chạy ngay trên trình duyệt, như tạo mã QR.</p>
-        </a>
-        <a class="card feature" href="/contact/">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v12H4zM4 7l8 6 8-6"/></svg>
-          <h3>Liên hệ</h3>
-          <p>Gửi tin nhắn qua form, không cần đăng nhập hay tạo tài khoản.</p>
-        </a>
-      </div>
-    </section>
-
-    <!-- Quy trình (chuỗi bước nên đánh số) -->
-    <section class="block">
-      <h2>Web này vận hành thế nào</h2>
-      <p class="sub">Từ lúc viết đến lúc xuất hiện trên mạng chỉ mất vài phút.</p>
-      <ol class="steps">
-        <li class="card"><h3>Viết</h3><p>Soạn bài bằng Markdown hoặc chạy notebook trên Colab.</p></li>
-        <li class="card"><h3>Đẩy lên GitHub</h3><p>Mã nguồn và nội dung nằm trong một repo.</p></li>
-        <li class="card"><h3>Tự deploy</h3><p>Cloudflare nhận thay đổi, build và đăng lên mạng.</p></li>
-      </ol>
-    </section>
-
-    <!-- Mới nhất -->
     <section class="block">
       <div class="two">
         <div>
@@ -103,28 +55,6 @@ Viết nội dung bằng Markdown.</code></pre>
             ))}
           </ul>
         </div>
-      </div>
-    </section>
-
-    <!-- Hỏi đáp -->
-    <section class="block">
-      <h2>Câu hỏi thường gặp</h2>
-      <div class="faq">
-        <details><summary>Web này làm bằng gì?</summary>
-          <p>Astro tạo trang tĩnh, Cloudflare lưu trữ và phân phối, Formspree nhận tin nhắn từ form liên hệ.</p></details>
-        <details><summary>Viết bài mới bằng cách nào?</summary>
-          <p>Thêm một file Markdown vào thư mục blog, hoặc lưu notebook Colab vào thư mục notebooks trên GitHub.</p></details>
-        <details><summary>Liên hệ bằng cách nào?</summary>
-          <p>Dùng form ở trang Liên hệ. Tin nhắn được gửi thẳng tới email của mình.</p></details>
-      </div>
-    </section>
-
-    <!-- Kêu gọi hành động -->
-    <section class="block" style="border-top:0">
-      <div class="banner">
-        <h2>Có việc cần trao đổi?</h2>
-        <p>Gửi tin nhắn, mình sẽ phản hồi sớm.</p>
-        <a class="btn primary" href="/contact/">Gửi tin nhắn</a>
       </div>
     </section>
   </div>
