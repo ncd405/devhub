@@ -1,0 +1,48 @@
+---
+import Tool from '../../../layouts/TiktokTool.astro';
+---
+<Tool title="QR link hồ sơ" description="Tạo mã QR cho link hồ sơ TikTok hoặc bất kỳ đường link nào, tải về PNG." heading="QR link hồ sơ" lead="Nhập tên tài khoản (ví dụ ten.cua.ban) hoặc dán đường link đầy đủ để tạo mã QR.">
+  <div class="tk-panel">
+    <label>Tên tài khoản hoặc đường link
+      <input id="src" type="text" maxlength="300" placeholder="ten.cua.ban hoặc https://..." autocomplete="off" />
+    </label>
+    <label>Kích thước
+      <select id="size"><option value="256">256 px</option><option value="512" selected>512 px</option><option value="1024">1024 px (in ấn)</option></select>
+    </label>
+    <p class="err" id="err" role="status"></p>
+    <p class="tk-note" id="link"></p>
+  </div>
+  <div class="tk-panel">
+    <div class="qr-box"><canvas id="canvas" role="img" aria-label="Mã QR" hidden></canvas></div>
+    <div class="tk-chips"><button class="btn primary sm" id="dl" type="button" disabled>Tải PNG</button></div>
+  </div>
+
+  <script>
+    import QRCode from 'qrcode';
+    import { $ } from '../../../scripts/util';
+    const src = $<HTMLInputElement>('src'), size = $<HTMLSelectElement>('size'), canvas = $<HTMLCanvasElement>('canvas');
+    const err = $('err'), linkEl = $('link'), dl = $<HTMLButtonElement>('dl');
+
+    function toLink(raw: string): string | null {
+      const v = raw.trim();
+      if (!v) return '';
+      if (/^https?:\/\//i.test(v)) { try { new URL(v); return v; } catch { return null; } }
+      const name = v.replace(/^@/, '');
+      return /^[A-Za-z0-9._]{2,24}$/.test(name) ? `https://www.tiktok.com/@${name}` : null;
+    }
+    async function render() {
+      const link = toLink(src.value);
+      linkEl.textContent = link ? `Liên kết: ${link}` : '';
+      if (link === '') { canvas.hidden = true; dl.disabled = true; err.textContent = ''; return; }
+      if (link === null) { canvas.hidden = true; dl.disabled = true; err.textContent = 'Tên tài khoản hoặc đường link chưa hợp lệ.'; return; }
+      try {
+        await QRCode.toCanvas(canvas, link, { width: Number(size.value), margin: 2 });
+        canvas.hidden = false; dl.disabled = false; err.textContent = '';
+      } catch { canvas.hidden = true; dl.disabled = true; err.textContent = 'Không tạo được mã QR cho nội dung này.'; }
+    }
+    let t: number | undefined;
+    const schedule = () => { clearTimeout(t); t = window.setTimeout(render, 150); };
+    src.addEventListener('input', schedule); size.addEventListener('change', schedule);
+    dl.addEventListener('click', () => { const a = document.createElement('a'); a.href = canvas.toDataURL('image/png'); a.download = 'qr.png'; a.click(); });
+  </script>
+</Tool>

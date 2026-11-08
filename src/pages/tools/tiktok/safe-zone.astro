@@ -1,0 +1,42 @@
+---
+import Tool from '../../../layouts/TiktokTool.astro';
+---
+<Tool title="Vùng an toàn 9:16" description="Xem trước các vùng giao diện app có thể che nội dung video dọc 9:16." heading="Vùng an toàn 9:16" lead="Tải một ảnh khung hình để xem vùng có thể bị tên tài khoản, caption và nút bên phải che mất. Kéo thanh trượt để chỉnh.">
+  <div class="tk-panel">
+    <label>Ảnh khung hình (tùy chọn)
+      <input id="img" type="file" accept="image/*" />
+    </label>
+    <label class="tk-check"><input id="show" type="checkbox" checked /> Hiện vùng cần tránh</label>
+    <div class="row2">
+      <label>Phía trên: <span id="v-top">10%</span><input id="top" type="range" min="0" max="25" value="10" /></label>
+      <label>Phía dưới: <span id="v-bottom">22%</span><input id="bottom" type="range" min="0" max="40" value="22" /></label>
+    </div>
+    <label>Bên phải: <span id="v-right">14%</span><input id="right" type="range" min="0" max="30" value="14" /></label>
+    <p class="tk-note">Các tỷ lệ này chỉ là ước lượng. Giao diện thật đổi theo phiên bản app và kích thước máy, nên hãy thử đăng riêng tư để kiểm tra.</p>
+  </div>
+  <div class="tk-panel">
+    <div class="tk-stage" id="stage" style="--top:10%;--bottom:22%;--right:14%">
+      <div class="tk-zone tk-z-top">Thanh trên</div>
+      <div class="tk-zone tk-z-bottom">Tên, caption, nhạc</div>
+      <div class="tk-zone tk-z-right">Nút</div>
+    </div>
+  </div>
+
+  <script>
+    import { $ } from '../../../scripts/util';
+    const stage = $('stage'), img = $<HTMLInputElement>('img');
+    let url = '';
+    img.addEventListener('change', () => {
+      const f = img.files?.[0];
+      if (url) URL.revokeObjectURL(url);
+      if (!f) { stage.style.backgroundImage = ''; return; }
+      url = URL.createObjectURL(f);
+      stage.style.backgroundImage = `url("${url}")`;
+    });
+    $<HTMLInputElement>('show').addEventListener('change', (e) => stage.classList.toggle('tk-hide', !(e.target as HTMLInputElement).checked));
+    for (const k of ['top', 'bottom', 'right']) {
+      const r = $<HTMLInputElement>(k);
+      r.addEventListener('input', () => { stage.style.setProperty(`--${k}`, r.value + '%'); $(`v-${k}`).textContent = r.value + '%'; });
+    }
+  </script>
+</Tool>

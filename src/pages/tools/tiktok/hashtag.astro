@@ -1,0 +1,67 @@
+---
+import Tool from '../../../layouts/TiktokTool.astro';
+---
+<Tool title="Tạo hashtag" description="Biến chủ đề thành danh sách hashtag, có hoặc không dấu, bấm để chọn và sao chép." heading="Tạo hashtag" lead="Nhập chủ đề, nhận danh sách hashtag gợi ý theo quy tắc. Bấm vào từng tag để chọn hoặc bỏ chọn.">
+  <div class="tk-panel">
+    <label>Chủ đề video
+      <input id="topic" type="text" maxlength="80" placeholder="Ví dụ: nấu ăn tại nhà" autocomplete="off" />
+    </label>
+    <label class="tk-check"><input id="accent" type="checkbox" checked /> Giữ dấu tiếng Việt</label>
+    <label class="tk-check"><input id="common" type="checkbox" /> Thêm tag chung (#fyp #xuhuong #viral)</label>
+    <p class="tk-note">Gợi ý tạo bằng quy tắc ghép từ, không phải AI. Tag chung không đảm bảo tăng lượt xem.</p>
+  </div>
+  <div class="tk-panel">
+    <p class="tk-note" id="count">Nhập chủ đề để bắt đầu.</p>
+    <div class="tk-chips" id="tags"></div>
+    <div class="tk-chips">
+      <button class="btn primary sm" id="copy" type="button" disabled>Sao chép đã chọn</button>
+      <button class="btn ghost sm" id="all" type="button" disabled>Chọn tất cả</button>
+      <button class="btn ghost sm" id="none" type="button" disabled>Bỏ chọn hết</button>
+    </div>
+  </div>
+
+  <script>
+    import { $, copy } from '../../../scripts/util';
+    const topic = $<HTMLInputElement>('topic'), accent = $<HTMLInputElement>('accent'), common = $<HTMLInputElement>('common');
+    const box = $('tags'), count = $('count');
+    const btns = ['copy', 'all', 'none'].map((id) => $<HTMLButtonElement>(id));
+
+    const strip = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D');
+
+    function build(): string[] {
+      const raw = topic.value.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, ' ').trim();
+      if (!raw) return [];
+      const conv = (s: string) => (accent.checked ? s : strip(s));
+      const words = raw.split(/\s+/).map(conv);
+      const out = new Set<string>();
+      out.add(words.join(''));
+      for (const w of words) if (Array.from(w).length >= 3) out.add(w);
+      for (let i = 0; i < words.length - 1; i++) out.add(words[i] + words[i + 1]);
+      if (words.length > 2) for (let i = 0; i < words.length - 2; i++) out.add(words[i] + words[i + 1] + words[i + 2]);
+      if (!accent.checked === false) out.add(strip(raw).replace(/\s+/g, ''));
+      if (common.checked) ['fyp', 'xuhuong', 'viral'].forEach((t) => out.add(t));
+      return [...out].filter(Boolean).slice(0, 30).map((t) => '#' + t);
+    }
+
+    function selected() { return [...box.querySelectorAll<HTMLElement>('[aria-pressed="true"]')].map((e) => e.textContent!); }
+    function refreshCount() {
+      const total = box.children.length;
+      count.textContent = total ? `Đã chọn ${selected().length}/${total} hashtag` : 'Nhập chủ đề để bắt đầu.';
+      btns.forEach((b) => (b.disabled = total === 0));
+    }
+    function render() {
+      box.textContent = '';
+      for (const t of build()) {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'tk-tagchip'; b.textContent = t; b.setAttribute('aria-pressed', 'true');
+        b.addEventListener('click', () => { b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true')); refreshCount(); });
+        box.appendChild(b);
+      }
+      refreshCount();
+    }
+    [topic, accent, common].forEach((el) => el.addEventListener('input', render));
+    $('copy').addEventListener('click', () => { const s = selected(); if (s.length) copy(s.join(' ')); });
+    $('all').addEventListener('click', () => { box.querySelectorAll('.tk-tagchip').forEach((e) => e.setAttribute('aria-pressed', 'true')); refreshCount(); });
+    $('none').addEventListener('click', () => { box.querySelectorAll('.tk-tagchip').forEach((e) => e.setAttribute('aria-pressed', 'false')); refreshCount(); });
+  </script>
+</Tool>

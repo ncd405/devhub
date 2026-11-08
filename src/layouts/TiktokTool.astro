@@ -1,0 +1,11 @@
+---
+import Base from './Base.astro';
+interface Props { title: string; description: string; heading: string; lead: string; }
+const { title, description, heading, lead } = Astro.props;
+---
+<Base title={`${title} — Công cụ TikTok — devhub`} description={description}>
+  <a class="tk-back" href="/tools/tiktok/">← Công cụ TikTok</a>
+  <h1 style="margin-top:14px">{heading}</h1>
+  <p class="lead" style="margin-bottom:28px">{lead}</p>
+  <slot />
+</Base>

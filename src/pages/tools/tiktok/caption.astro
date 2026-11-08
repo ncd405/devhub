@@ -1,0 +1,74 @@
+---
+import Tool from '../../../layouts/TiktokTool.astro';
+---
+<Tool title="Đếm caption" description="Đếm ký tự, từ, hashtag của caption và cảnh báo khi vượt giới hạn." heading="Đếm caption" lead="Dán caption để xem số ký tự, từ và hashtag. Hashtag cũng tính vào số ký tự.">
+  <div class="tk-panel">
+    <label>Caption
+      <textarea id="cap" placeholder="Viết hoặc dán caption vào đây... #hashtag"></textarea>
+    </label>
+    <label>Giới hạn ký tự
+      <select id="limit">
+        <option value="2200" selected>2.200 ký tự</option>
+        <option value="4000">4.000 ký tự</option>
+        <option value="150">150 ký tự (mức cũ)</option>
+      </select>
+    </label>
+    <p class="tk-note">Các nguồn hiện ghi mức giới hạn khác nhau (150, 2.200 hoặc 4.000) và có thể đổi theo phiên bản app. Hãy chọn mức khớp với app của bạn.</p>
+  </div>
+
+  <div class="tk-panel">
+    <div class="tk-ring" id="ringbox">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="bg" cx="50" cy="50" r="44" /><circle class="fg" id="ring" cx="50" cy="50" r="44" /></svg>
+      <div><div class="tk-big" id="remain">2200</div><span class="tk-note" id="remain-label">ký tự còn lại</span></div>
+    </div>
+    <div class="tk-stats">
+      <div class="tk-stat" id="s-chars"><b id="n-chars">0</b><span>Ký tự</span></div>
+      <div class="tk-stat"><b id="n-words">0</b><span>Từ</span></div>
+      <div class="tk-stat"><b id="n-tags">0</b><span>Hashtag</span></div>
+      <div class="tk-stat"><b id="n-lines">0</b><span>Dòng</span></div>
+    </div>
+    <div class="tk-chips" id="taglist" aria-label="Hashtag tìm thấy"></div>
+    <div class="tk-chips">
+      <button class="btn primary sm" id="copy" type="button">Sao chép caption</button>
+      <button class="btn ghost sm" id="clear" type="button">Xóa</button>
+    </div>
+  </div>
+
+  <script>
+    import { $, copy } from '../../../scripts/util';
+    const cap = $<HTMLTextAreaElement>('cap'), limitSel = $<HTMLSelectElement>('limit');
+    const ring = document.getElementById('ring') as unknown as SVGCircleElement;
+    const C = 2 * Math.PI * 44;
+    ring.style.strokeDasharray = String(C);
+
+    function update() {
+      const text = cap.value;
+      const len = Array.from(text).length;
+      const limit = Number(limitSel.value);
+      const tags = text.match(/#[\p{L}\p{N}_]+/gu) ?? [];
+      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+      const lines = text ? text.split('\n').length : 0;
+      const remain = limit - len;
+      $('n-chars').textContent = String(len);
+      $('n-words').textContent = String(words);
+      $('n-tags').textContent = String(tags.length);
+      $('n-lines').textContent = String(lines);
+      $('remain').textContent = String(Math.abs(remain));
+      $('remain-label').textContent = remain >= 0 ? 'ký tự còn lại' : 'ký tự vượt quá';
+      ring.style.strokeDashoffset = String(C * (1 - Math.min(1, len / limit)));
+      $('ringbox').classList.toggle('over', remain < 0);
+      $('s-chars').classList.toggle('over', remain < 0);
+      const box = $('taglist');
+      box.textContent = '';
+      for (const t of tags) {
+        const s = document.createElement('span');
+        s.className = 'tk-tagchip tk-static'; s.textContent = t; box.appendChild(s);
+      }
+    }
+    cap.addEventListener('input', update);
+    limitSel.addEventListener('change', update);
+    $('copy').addEventListener('click', () => cap.value ? copy(cap.value) : null);
+    $('clear').addEventListener('click', () => { cap.value = ''; update(); cap.focus(); });
+    update();
+  </script>
+</Tool>

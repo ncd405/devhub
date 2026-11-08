@@ -1,0 +1,58 @@
+---
+import Tool from '../../../layouts/TiktokTool.astro';
+---
+<Tool title="Kiểm tra video" description="Kiểm tra tỷ lệ, độ phân giải, thời lượng và dung lượng video trước khi đăng, ngay trên máy bạn." heading="Kiểm tra video" lead="Chọn một file video để xem thông số. File được đọc ngay trên máy bạn và không được tải lên đâu cả.">
+  <div class="tk-panel">
+    <label>Chọn video
+      <input id="file" type="file" accept="video/*" />
+    </label>
+    <p class="tk-note">Khuyến nghị phổ biến: tỷ lệ 9:16, độ phân giải 1080×1920, định dạng MP4 hoặc MOV. Giới hạn dung lượng và thời lượng thay đổi theo app, nên công cụ chỉ hiển thị giá trị thật của file.</p>
+  </div>
+  <div class="tk-panel">
+    <p class="tk-note" id="msg">Chưa chọn video.</p>
+    <div class="tk-res" id="res"></div>
+  </div>
+
+  <script>
+    import { $ } from '../../../scripts/util';
+    const input = $<HTMLInputElement>('file'), msg = $('msg'), res = $('res');
+
+    function row(label: string, value: string, ok: boolean | null, hint?: string) {
+      const d = document.createElement('div');
+      if (ok !== null) d.className = ok ? 'tk-ok' : 'tk-warn';
+      const a = document.createElement('span'); a.textContent = label;
+      const b = document.createElement('b'); b.textContent = value;
+      d.append(a, b);
+      if (hint) { const s = document.createElement('small'); s.textContent = hint; d.appendChild(s); }
+      res.appendChild(d);
+    }
+    const fmtTime = (s: number) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;
+    const fmtSize = (b: number) => b >= 1048576 ? `${(b / 1048576).toFixed(1)} MB` : `${Math.round(b / 1024)} KB`;
+
+    input.addEventListener('change', () => {
+      const f = input.files?.[0];
+      res.textContent = '';
+      if (!f) { msg.textContent = 'Chưa chọn video.'; return; }
+      msg.textContent = 'Đang đọc thông số...';
+      const url = URL.createObjectURL(f);
+      const v = document.createElement('video');
+      v.preload = 'metadata'; v.muted = true;
+      v.onloadedmetadata = () => {
+        const w = v.videoWidth, h = v.videoHeight;
+        URL.revokeObjectURL(url);
+        if (!w || !h) { msg.textContent = 'Không đọc được kích thước video này.'; return; }
+        msg.textContent = f.name;
+        const ratio = w / h, is916 = Math.abs(ratio - 9 / 16) < 0.01;
+        row('Độ phân giải', `${w} × ${h}`, Math.min(w, h) >= 720, Math.min(w, h) >= 720 ? undefined : 'Thấp hơn 720p, video có thể bị mờ.');
+        row('Tỷ lệ khung hình', is916 ? '9:16' : ratio.toFixed(2), is916, is916 ? undefined : 'Không phải 9:16. App có thể thêm viền hoặc cắt hình.');
+        row('Hướng', h >= w ? 'Dọc' : 'Ngang', h >= w, h >= w ? undefined : 'Video ngang sẽ hiển thị nhỏ trong khung dọc.');
+        row('Thời lượng', fmtTime(v.duration), null);
+        row('Dung lượng', fmtSize(f.size), null);
+        const okType = /mp4|quicktime/.test(f.type);
+        row('Định dạng', f.type || 'không rõ', okType, okType ? undefined : 'MP4 hoặc MOV thường tương thích tốt nhất.');
+      };
+      v.onerror = () => { URL.revokeObjectURL(url); msg.textContent = 'Trình duyệt không đọc được video này (có thể do codec lạ).'; };
+      v.src = url;
+    });
+  </script>
+</Tool>

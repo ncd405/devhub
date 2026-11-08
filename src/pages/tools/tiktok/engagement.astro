@@ -1,0 +1,46 @@
+---
+import Tool from '../../../layouts/TiktokTool.astro';
+---
+<Tool title="Tỷ lệ tương tác" description="Tính tỷ lệ tương tác (ER) của video từ lượt xem, thích, bình luận, chia sẻ và lưu." heading="Tỷ lệ tương tác" lead="Nhập số liệu video để tính ER. Công thức: (thích + bình luận + chia sẻ + lưu) ÷ lượt xem × 100%.">
+  <div class="tk-panel">
+    <div class="row2">
+      <label>Lượt xem<input id="views" type="number" min="0" inputmode="numeric" /></label>
+      <label>Lượt thích<input id="likes" type="number" min="0" inputmode="numeric" /></label>
+    </div>
+    <div class="row2">
+      <label>Bình luận<input id="comments" type="number" min="0" inputmode="numeric" /></label>
+      <label>Chia sẻ<input id="shares" type="number" min="0" inputmode="numeric" /></label>
+    </div>
+    <div class="row2">
+      <label>Lượt lưu<input id="saves" type="number" min="0" inputmode="numeric" /></label>
+      <label>Người theo dõi (tùy chọn)<input id="followers" type="number" min="0" inputmode="numeric" /></label>
+    </div>
+    <p class="err" id="err"></p>
+  </div>
+  <div class="tk-panel">
+    <div class="tk-stats">
+      <div class="tk-stat"><b id="er">—</b><span>ER theo lượt xem</span></div>
+      <div class="tk-stat"><b id="erf">—</b><span>ER theo người theo dõi</span></div>
+      <div class="tk-stat"><b id="tot">0</b><span>Tổng tương tác</span></div>
+    </div>
+    <p class="tk-note">Mức ER "tốt" khác nhau theo ngách và quy mô kênh, nên hãy dùng để so sánh các video của chính bạn với nhau.</p>
+  </div>
+
+  <script>
+    import { $ } from '../../../scripts/util';
+    const ids = ['views', 'likes', 'comments', 'shares', 'saves', 'followers'];
+    const val = (id: string) => { const n = Number($<HTMLInputElement>(id).value); return Number.isFinite(n) && n >= 0 ? n : NaN; };
+    function calc() {
+      const views = val('views'), followers = val('followers');
+      const parts = ['likes', 'comments', 'shares', 'saves'].map((k) => (val(k) || 0));
+      const total = parts.reduce((a, b) => a + b, 0);
+      const hasBad = ids.some((id) => $<HTMLInputElement>(id).value !== '' && Number.isNaN(val(id)));
+      $('err').textContent = hasBad ? 'Chỉ nhập số không âm.' : (views > 0 && total > views * 5 ? 'Tương tác lớn bất thường so với lượt xem, hãy kiểm tra lại số liệu.' : '');
+      $('tot').textContent = total.toLocaleString('vi-VN');
+      $('er').textContent = views > 0 ? ((total / views) * 100).toFixed(2) + '%' : '—';
+      $('erf').textContent = followers > 0 ? ((total / followers) * 100).toFixed(2) + '%' : '—';
+    }
+    ids.forEach((id) => $(id).addEventListener('input', calc));
+    calc();
+  </script>
+</Tool>

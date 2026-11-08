@@ -1,0 +1,67 @@
+---
+import Tool from '../../../layouts/TiktokTool.astro';
+---
+<Tool title="Hook và kịch bản" description="Mẫu câu mở đầu (hook) và khung kịch bản 4 phần cho video ngắn." heading="Hook và kịch bản" lead="Nhập chủ đề, chọn kiểu hook để nhận các câu mở đầu mẫu và khung kịch bản. Đây là mẫu gợi ý, bạn nên chỉnh theo giọng của mình.">
+  <div class="tk-panel">
+    <label>Chủ đề
+      <input id="topic" type="text" maxlength="80" placeholder="Ví dụ: nấu ăn tại nhà" autocomplete="off" />
+    </label>
+    <label>Kiểu hook
+      <select id="style">
+        <option value="tip">Mẹo hữu ích</option>
+        <option value="story">Kể chuyện</option>
+        <option value="curious">Gây tò mò</option>
+        <option value="compare">So sánh</option>
+        <option value="mistake">Sai lầm thường gặp</option>
+      </select>
+    </label>
+  </div>
+  <div class="tk-panel">
+    <ul class="tk-hooks" id="hooks"></ul>
+    <label>Khung kịch bản
+      <textarea id="script" rows="9" readonly></textarea>
+    </label>
+    <div class="tk-chips"><button class="btn primary sm" id="copy-script" type="button">Sao chép kịch bản</button></div>
+  </div>
+
+  <script>
+    import { $, copy } from '../../../scripts/util';
+    const T: Record<string, string[]> = {
+      tip: ['3 mẹo {t} mà ít ai nói với bạn', 'Cách {t} chỉ trong 30 giây', 'Bí quyết {t} mình ước biết sớm hơn', 'Nếu bạn đang {t}, hãy xem hết video này'],
+      story: ['Mình đã thử {t} suốt 30 ngày và đây là kết quả', 'Chuyện gì xảy ra khi bạn {t} mỗi ngày?', 'Lần đầu {t}, mình đã mắc sai lầm này', 'Hành trình {t} của mình bắt đầu như thế này'],
+      curious: ['Không ai nói với bạn điều này về {t}', 'Sự thật về {t} mà nhiều người hiểu sai', 'Bạn có biết điều bất ngờ này về {t}?', 'Đừng {t} trước khi xem video này'],
+      compare: ['{t}: cách làm đúng và cách làm sai', 'Người mới và người có kinh nghiệm {t} khác nhau ở điểm này', '{t} kiểu cũ và kiểu mới, bạn chọn cách nào?', 'Hai cách {t}, chỉ một cách thật sự hiệu quả'],
+      mistake: ['Sai lầm lớn nhất khi {t} mà bạn đang mắc', '5 lỗi khi {t} khiến bạn mất thời gian', 'Đừng {t} như thế này nữa', 'Mình từng {t} sai cách suốt nhiều năm'],
+    };
+    const topic = $<HTMLInputElement>('topic'), style = $<HTMLSelectElement>('style'), list = $('hooks'), script = $<HTMLTextAreaElement>('script');
+
+    function render() {
+      const t = topic.value.trim() || 'chủ đề của bạn';
+      const hooks = T[style.value].map((s) => s.replace('{t}', t));
+      list.textContent = '';
+      for (const h of hooks) {
+        const li = document.createElement('li');
+        const sp = document.createElement('span'); sp.textContent = h;
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'btn ghost sm'; b.textContent = 'Chép';
+        b.addEventListener('click', () => copy(h));
+        li.append(sp, b); list.appendChild(li);
+      }
+      script.value =
+`0-3 giây | HOOK
+${hooks[0]}
+
+3-10 giây | VẤN ĐỀ
+Nêu rõ người xem đang gặp khó khăn gì với ${t}.
+
+10-25 giây | GIẢI PHÁP
+Đưa ra 2-3 ý chính, mỗi ý một câu ngắn kèm hình minh họa.
+
+25-30 giây | KÊU GỌI
+Mời xem thêm, lưu video hoặc theo dõi để xem phần tiếp theo.`;
+    }
+    topic.addEventListener('input', render);
+    style.addEventListener('change', render);
+    $('copy-script').addEventListener('click', () => copy(script.value));
+    render();
+  </script>
+</Tool>
